@@ -1,0 +1,52 @@
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: centos-httpd
+  labels:
+    app: ros-ocp-backend
+    pod: ros-ocp-backend-centos-httpd
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ros-ocp-backend
+      pod: ros-ocp-backend-centos-httpd
+  template:
+    metadata:
+      labels:
+        app: ros-ocp-backend
+        pod: ros-ocp-backend-centos-httpd
+    spec:
+      restartPolicy: Always
+      containers:
+        - name: ros-ocp-backend-centos-httpd
+          imagePullPolicy: Always
+          ports:
+            - name: private
+              containerPort: 8080
+              protocol: TCP
+          imagePullPolicy: IfNotPresent
+          image: 'quay.io/supatil/centos:nginx4'
+      dnsPolicy: ClusterFirst
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: centos-httpd
+  labels:
+    app: ros-ocp-backend
+    pod: ros-ocp-backend-centos-httpd
+spec:
+  ipFamilies:
+    - IPv4
+  ports:
+    - name: private
+      protocol: TCP
+      appProtocol: http
+      port: 8080
+      targetPort: 8080
+  type: ClusterIP
+  selector:
+    pod: ros-ocp-backend-centos-httpd
+
